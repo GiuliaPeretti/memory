@@ -2,7 +2,6 @@ import pygame
 from settings import *
 import random
 
-random.seed(0)
 
 def draw_background():
     screen.fill(BACKGROUND_COLOR)
@@ -76,7 +75,6 @@ def draw_buttons(selected):
 
 def reveal_cell(row,col):
     if (status_cells[row][col]==0):
-        status_cells[row][col]=1
 
         pygame.draw.rect(screen, GRAY, (cell_width*col+20,cell_width*row+20,cell_width,cell_width))
 
@@ -154,11 +152,14 @@ def end():
     screen.blit(text, (650, 500))
 
 def check_match(cell_reveal_now):
-    if (cells[cell_reveal_now[0][0]][cell_reveal_now[0][1]] and cells[cell_reveal_now[1][0]][cell_reveal_now[1][1]]):
-        status_cells[cell_reveal_now[0][0]][cell_reveal_now[0][1]]==1
-        status_cells[cell_reveal_now[1][0]][cell_reveal_now[1][1]]==1
-    draw_hidden_cell(cell_reveal_now[0][0],cell_reveal_now[0][1])
-    draw_hidden_cell(cell_reveal_now[1][0],cell_reveal_now[1][1])
+
+    if (cells[cell_reveal_now[0][0]][cell_reveal_now[0][1]] == cells[cell_reveal_now[1][0]][cell_reveal_now[1][1]]):
+        status_cells[cell_reveal_now[0][0]][cell_reveal_now[0][1]]=1
+        status_cells[cell_reveal_now[1][0]][cell_reveal_now[1][1]]=1
+    
+    else:
+        draw_hidden_cell(cell_reveal_now[0][0],cell_reveal_now[0][1])
+        draw_hidden_cell(cell_reveal_now[1][0],cell_reveal_now[1][1])
 
 if __name__=='__main__':
 
@@ -193,13 +194,16 @@ if __name__=='__main__':
                 if(x>=20 and x<=560 and y>=20 and x<=560):
                     row=(y-20)//cell_width
                     col=(x-20)//cell_width
-                    print(cells)
+
                     if status_cells[row][col]==0:
                         reveal_cell(row, col)
+                        pygame.display.flip()
+                        pygame.time.delay(500)
                         cell_reveal_now.append([row,col])
                         if len(cell_reveal_now)==2:
                             check_match(cell_reveal_now)
-                        check_win()
+                            cell_reveal_now=[]
+                    check_win()
                 else:
                     for i in range (len(buttons)):
                         if(x>=buttons[i]['coordinates'][0] and x<=buttons[i]['coordinates'][0]+buttons[i]['coordinates'][2] and y>=buttons[i]['coordinates'][1] and y<=buttons[i]['coordinates'][1]+buttons[i]['coordinates'][3]):
@@ -220,26 +224,12 @@ if __name__=='__main__':
                                     draw_hidden_cells(cell_width)
                                     cells,status_cells,choices=init_cell(size)
                                     cells=fill_cell(cells,choices)
-                                    print(cells)
                                     buttons=gen_buttons()
                                     draw_buttons(selected)
                                 break
                     else:
                         selected=-1
                     draw_buttons(selected)
-
-
-
-            if (event.type == pygame.KEYDOWN):
-                pass
-        if (loose and game_started):
-            print('LOST')
-            end()
-            game_started=False
-        elif(win and game_started):
-            print('WIN')
-            end()
-            game_started=False
 
         pygame.display.flip()
         clock.tick(30)
